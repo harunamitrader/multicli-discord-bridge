@@ -1,6 +1,6 @@
 ---
 name: multicli-discord-bridge-slot-state
-description: Read coordination state for slot1-slot6 of the running multicli-discord-bridge Electron app by calling the local slot-observe CLI.
+description: Read coordination state for slot1-slot8 of the running multicli-discord-bridge Electron app by calling the local slot-observe CLI.
 ---
 
 # multicli-discord-bridge slot state

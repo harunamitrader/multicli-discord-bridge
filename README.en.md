@@ -32,8 +32,8 @@ You can watch six slots at once, send instructions to each slot from Discord, an
 
 ## What it can do
 
-- Show **six fixed slots in one window** at the same time, with slot5 and slot6 in a half-width right column
-- Drag two vertical dividers and one horizontal divider to resize the **visible pane layout only**, while keeping the internal terminal size fixed
+- Show **eight fixed slots in one window** at the same time, arranged as `slot1 / slot3 / slot5 / slot7` on top and `slot2 / slot4 / slot6 / slot8` on the bottom
+- Drag three vertical dividers and one horizontal divider to resize the **visible pane layout only**, while keeping the internal terminal size fixed
 - Bind one Discord channel to one slot and use **Discord as the control surface**
 - Send Discord text directly into the target slot's terminal / CLI
 - Reply to Discord with the detected output diff so you can track work remotely
@@ -189,7 +189,7 @@ If first-time setup fails, prefer running **`npm install` â†’ `npm run build` â†
 ## 6. How to use it
 
 1. Start the app
-2. The app automatically creates **six fixed slots**
+2. The app automatically creates **eight fixed slots**
 3. Each slot reconnects to its saved Discord channel
 4. If a slot has no channel ID yet, the app auto-creates a Discord channel in the configured guild
 5. At startup, the shared artifact channel `terminal-artifacts` is also auto-created or reused
@@ -347,7 +347,7 @@ Settings are split into **Global** and **Per slot** sections.
 - **Global:** Artifact publish folder (default is `discord-publish` under terminal 1's cwd, destination channel is the auto-created `terminal-artifacts`)
 - **Global:** screen diff anchor chars (default `300`, saved as `bridgeSettings.diffAnchorChars` in `preferences.json`)
 - **Global:** bridge timing for redraw/input/Enter/repeat-key waits, plus completion detection, manual redraw, live view publish, screenshot capture, app restart, and attachment download waits/timeouts saved under `bridgeSettings.timing` in `%APPDATA%\multicli-discord-bridge\preferences.json`
-- **Per slot:** workspace name, Discord channel ID, and that slot's default working directory
+- **Per slot:** workspace name, Discord channel ID, that slot's default working directory, and an optional startup command that sends text + Enter exactly once after that slot reaches its first PowerShell prompt during app startup
 
 Default values are:
 

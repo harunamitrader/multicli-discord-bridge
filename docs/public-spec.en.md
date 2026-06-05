@@ -26,8 +26,8 @@ This project is designed not as a **public remote-management bot**, but as a **b
 
 ### 4.1 Channels and sessions
 
-- The app window shows **six fixed PowerShell sessions**
-- Each pane is a fixed slot, arranged in two rows as `slot1 / slot3 / slot5` on top and `slot2 / slot4 / slot6` on the bottom
+- The app window shows **eight fixed PowerShell sessions**
+- Each pane is a fixed slot, arranged in two rows as `slot1 / slot3 / slot5 / slot7` on top and `slot2 / slot4 / slot6 / slot8` on the bottom
 - The runtime model is **1 Discord channel = 1 slot = 1 PowerShell session**
 - Messages sent to the same channel go to the same slot session
 - If additional text or control input arrives while a reply is still being generated, that input is injected directly into the running session instead of being queued
@@ -171,9 +171,9 @@ ALLOW_GUILD_ID=...
 - Older keys such as `DISCORD_ALLOWED_USER_ID` and `DISCORD_ALLOWED_GUILD_IDS` are still accepted for compatibility, but guild-side config must still resolve to exactly one guild ID
 - See `README.en.md` for full setup instructions
 
-## 11. Fixed six-slot layout
+## 11. Fixed eight-slot layout
 
-- There is no left sidebar; the main app uses a fixed 3-column by 2-row six-slot layout
+- There is no left sidebar; the main app uses a fixed 4-column by 2-row eight-slot layout
 - Each pane title bar shows the slot status and a Restart action
 - Settings opens from the top-right header as a separate overlay
 - Logs opens from the top-right header in the same overlay style as Settings

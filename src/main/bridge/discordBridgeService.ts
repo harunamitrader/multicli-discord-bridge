@@ -335,13 +335,19 @@ export class DiscordBridgeService {
     const nextWorkspaceName = update.workspaceName?.trim() ? update.workspaceName.trim() : currentSlot.workspaceName;
     const nextCwd = update.cwd?.trim() ? update.cwd.trim() : currentSlot.cwd;
     const desiredChannelId = update.channelId === undefined ? currentSlot.channelId : update.channelId.trim();
+    const nextStartupCommandEnabled =
+      update.startupCommandEnabled === undefined ? currentSlot.startupCommandEnabled : Boolean(update.startupCommandEnabled);
+    const nextStartupCommandText =
+      update.startupCommandText === undefined ? currentSlot.startupCommandText : update.startupCommandText;
 
     const channel = await this.resolveDesiredChannel(update.slotId, desiredChannelId, nextWorkspaceName, nextCwd);
     const result = this.terminalSlotService.updateSlot({
       slotId: update.slotId,
       workspaceName: nextWorkspaceName,
       channelId: channel?.id ?? desiredChannelId,
-      cwd: nextCwd
+      cwd: nextCwd,
+      startupCommandEnabled: nextStartupCommandEnabled,
+      startupCommandText: nextStartupCommandText
     });
 
     const session = result.session ?? this.getLiveSessionForSlot(update.slotId);

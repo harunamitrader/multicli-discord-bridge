@@ -26,8 +26,8 @@ multicli-discord-bridge は、**Windows PC 上の PowerShell を Discord から�
 
 ### 4.1 チャンネルとセッション
 
-- アプリ画面には **6固定の PowerShell セッション** を表示します
-- 各 slot は固定で、レイアウトは上段が `slot1 / slot3 / slot5`、下段が `slot2 / slot4 / slot6` の 2 段構成です
+- アプリ画面には **8固定の PowerShell セッション** を表示します
+- 各 slot は固定で、レイアウトは上段が `slot1 / slot3 / slot5 / slot7`、下段が `slot2 / slot4 / slot6 / slot8` の 2 段構成です
 - **1 Discord チャンネル = 1 slot = 1 PowerShell セッション** の対応で運用します
 - 同じチャンネルに送ったメッセージは、同じ slot のセッションへ送られます
 - 応答生成中に追加の text / control 入力が来た場合は、キューせず実行中セッションへそのまま流し込みます
@@ -171,9 +171,9 @@ ALLOW_GUILD_ID=...
 - 旧形式の `DISCORD_ALLOWED_USER_ID` / `DISCORD_ALLOWED_GUILD_IDS` も互換のため読み取れますが、guild 側は最終的に 1 件に解決される必要があります
 - 詳しい導入方法は `README.md` を参照してください
 
-## 11. 固定6スロットレイアウト
+## 11. 固定8スロットレイアウト
 
-- 左サイドバーはなく、アプリ本体は 3列2段の固定 6 slot レイアウトです
+- 左サイドバーはなく、アプリ本体は 4列2段の固定 8 slot レイアウトです
 - 各枠のタイトルバーに、その枠の状態表示と Restart 操作があります
 - 設定はヘッダー右上の Settings から別画面で開きます
 - Logs もヘッダー右上から Settings と同様のオーバーレイで開きます

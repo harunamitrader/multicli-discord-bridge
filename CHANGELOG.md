@@ -6,6 +6,7 @@
 
 ### Added
 
+- Per-slot startup command settings to auto-send text + Enter once after each slot reaches its first PowerShell prompt during app startup
 - 連携時だけ読む shared state として、各 slot の `cwd` / `status` / `updatedAt` / `foregroundCommand` / `recentInbound` を `%APPDATA%\multicli-discord-bridge\coordination\slot-state.json` に記録する仕組み
 - `slot:observe -- --state` と `slot:observe -- --slot slotN --state` による coordination state 読み取り
 - Copilot 用の `multicli-discord-bridge-slot-state` skill テンプレート
@@ -45,6 +46,7 @@
 
 ### Changed
 
+- slot 数を 6 から 8 に拡張し、固定レイアウト・Settings・slot send/observe 系の対応範囲を `slot1-slot8` に変更
 - 6 slot の表示順と Settings 内の Per slot 表示順を、左列 `slot1 / slot2`・中央列 `slot3 / slot4`・右列 `slot5 / slot6` に変更
 - `multicli-discord-bridge` の Copilot skill 同梱を `docs\skill-examples` から `docs\skill-templates` に整理し、send / state / text の 3 分割に変更
 - `multicli-discord-bridge-slot-send` skill は送信専用とし、連携判断は state skill、visible text 取得は text skill を使う前提に整理

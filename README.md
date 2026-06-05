@@ -32,8 +32,8 @@ multicli-discord-bridge は、**複数の AI CLI を 1 つのウィンドウに�
 
 ## できること
 
-- 6 つの固定 slot を **1 つのウィンドウ**に並べて同時に監視する（slot5 / slot6 は右側の半幅列）
-- 横 1 本・縦 2 本の divider をドラッグして、**表示上の pane サイズだけ** 自由に調整できる（内部 terminal サイズは固定のまま）
+- 8 つの固定 slot を **1 つのウィンドウ**に並べて同時に監視する（上段 `slot1 / slot3 / slot5 / slot7`、下段 `slot2 / slot4 / slot6 / slot8`）
+- 横 1 本・縦 3 本の divider をドラッグして、**表示上の pane サイズだけ** 自由に調整できる（内部 terminal サイズは固定のまま）
 - Discord の 1 チャンネルを 1 つの slot にひも付けて、**Discord を操作面**として使う
 - Discord に送った文章を、そのまま対象 slot の terminal / CLI に入力する
 - 実行結果の差分を Discord に返信し、**離れた場所からでも作業状況を確認**する
@@ -351,7 +351,7 @@ screen diff の中間アンカー長は、既定値を **500 文字から 300 �
 - **Global:** Artifact publish folder（初期値は terminal 1 の cwd 直下の `discord-publish`、送信先チャンネルは自動作成される `terminal-artifacts`）
 - **Global:** screen diff anchor chars（既定値 `300`、`preferences.json` の `bridgeSettings.diffAnchorChars` に保存）
 - **Global:** bridge timing（ms 単位の redraw/input/Enter/repeat key 待機）に加えて、completion 判定、manual redraw、live view publish、screenshot capture、app restart、attachment download の待機・timeout も変更でき、設定は `%APPDATA%\multicli-discord-bridge\preferences.json` の `bridgeSettings.timing` に保存されます
-- **Per slot:** ワークスペース名、Discord channel ID、その slot の default working directory
+- **Per slot:** ワークスペース名、Discord channel ID、その slot の default working directory、app 起動時にその slot が最初の PowerShell prompt に到達した直後に 1 回だけ自動送信する startup command（text + Enter）
 
 初期値は次のとおりです。
 

@@ -122,8 +122,8 @@ function normalizeSlot(value) {
   }
 
   const normalized = value.trim().toLowerCase().replace(/^slot-?/, '');
-  if (!['1', '2', '3', '4', '5', '6'].includes(normalized)) {
-    throw new Error('Slot must be 1-6 or slot1-slot6.');
+  if (!['1', '2', '3', '4', '5', '6', '7', '8'].includes(normalized)) {
+    throw new Error('Slot must be 1-8 or slot1-slot8.');
   }
 
   return Number(normalized);
@@ -237,7 +237,7 @@ function printHelp() {
       '  node scripts\\bridge-observe.cjs --window-screenshot',
       '',
       'Options:',
-      '  --slot <slot>          Required for --text and --screenshot (1-6 or slot1-slot6)',
+      '  --slot <slot>          Required for --text and --screenshot (1-8 or slot1-slot8)',
       '  --state                Return coordination slot state as JSON (optionally filter by --slot)',
       '  --text                 Return visible slot text as JSON',
       '  --screenshot           Capture a slot screenshot and return the saved file path as JSON',

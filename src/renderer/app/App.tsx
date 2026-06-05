@@ -96,25 +96,23 @@ const MAX_INFLIGHT_SCREENSHOT_DELAY_SECONDS = MAX_TIMING_DELAY_MS / 1000;
 const MIN_DIFF_ANCHOR_CHARS = 50;
 const MAX_DIFF_ANCHOR_CHARS = 5000;
 const MAX_RENDERED_APP_LOGS = 2000;
-const SLOT_LAYOUT_ORDER: TerminalSlotId[] = [1, 3, 5, 2, 4, 6];
+const SLOT_LAYOUT_ORDER: TerminalSlotId[] = [1, 3, 5, 7, 2, 4, 6, 8];
 const WORKSPACE_DIVIDER_SIZE_PX = 10;
 const WORKSPACE_PADDING_PX = 10;
 const MIN_WORKSPACE_COLUMN_SIZE_PX = 220;
 const MIN_WORKSPACE_ROW_SIZE_PX = 160;
 const DEFAULT_WORKSPACE_PANE_LAYOUT: WorkspacePaneLayout = {
-  columnFractions: [0.4, 0.4, 0.2],
+  columnFractions: [0.25, 0.25, 0.25, 0.25],
   rowFractions: [0.5, 0.5]
 };
-const WORKSPACE_GRID_POSITIONS = [
-  { gridColumn: '1', gridRow: '1' },
-  { gridColumn: '3', gridRow: '1' },
-  { gridColumn: '5', gridRow: '1' },
-  { gridColumn: '1', gridRow: '3' },
-  { gridColumn: '3', gridRow: '3' },
-  { gridColumn: '5', gridRow: '3' }
+const WORKSPACE_COLUMN_GRID_COLUMNS = ['1', '3', '5', '7'] as const;
+const WORKSPACE_VERTICAL_DIVIDERS = [
+  { id: 'vertical-1', gridColumn: '2', ariaLabel: 'Resize first and second columns' },
+  { id: 'vertical-2', gridColumn: '4', ariaLabel: 'Resize second and third columns' },
+  { id: 'vertical-3', gridColumn: '6', ariaLabel: 'Resize third and fourth columns' }
 ] as const;
 
-type WorkspaceDivider = 'vertical-left' | 'vertical-right' | 'horizontal';
+type WorkspaceDivider = (typeof WORKSPACE_VERTICAL_DIVIDERS)[number]['id'] | 'horizontal';
 
 export function App() {
   const [bootstrapState, setBootstrapState] = useState<BootstrapState | null>(null);
@@ -523,7 +521,6 @@ export function App() {
       MIN_TIMING_DELAY_MS,
       MAX_TIMING_DELAY_MS
     );
-
     if (artifactWatchDirectory.length === 0) {
       setSettingsError('Enter an artifact publish folder.');
       return;
@@ -567,6 +564,22 @@ export function App() {
     setFeedback(null);
 
     try {
+      const sanitizedSlotDrafts = slotDrafts.map((slotDraft) => {
+        if (hasLineBreak(slotDraft.startupCommandText)) {
+          throw new Error(`slot${slotDraft.slotId}: Startup command must be a single line.`);
+        }
+
+        const startupCommandText = slotDraft.startupCommandText.trim();
+        if (slotDraft.startupCommandEnabled && startupCommandText.length === 0) {
+          throw new Error(`slot${slotDraft.slotId}: Enter a startup command or turn the setting off.`);
+        }
+
+        return {
+          ...slotDraft,
+          startupCommandText
+        };
+      });
+
       const updatedBridgeSettings = await window.terminalApp.updateBridgeSettings({
         autoScreenshotOnReply: settingsDraft.autoScreenshotOnReply,
         inflightScreenshotOnRunningRequest: settingsDraft.inflightScreenshotOnRunningRequest,
@@ -609,7 +622,7 @@ export function App() {
       setBridgeSettings(updatedBridgeSettings);
 
       const updatedSlots: TerminalSlotSettings[] = [];
-      for (const slotDraft of slotDrafts) {
+      for (const slotDraft of sanitizedSlotDrafts) {
         const result = await window.terminalApp.updateTerminalSlot(slotDraft);
         updatedSlots.push(result.slot);
         if (result.session) {
@@ -748,7 +761,7 @@ export function App() {
               <section
                 key={slot.slotId}
                 className={activeSessionId === session?.id ? 'terminal-tile terminal-tile--active' : 'terminal-tile'}
-                style={WORKSPACE_GRID_POSITIONS[index]}
+                style={getWorkspaceGridPosition(index)}
                 onMouseDown={() => {
                   if (session) {
                     setActiveSessionId(session.id);
@@ -829,25 +842,20 @@ export function App() {
           })}
           {!workspaceOverlayOpen ? (
             <>
-              <div
-                className={activeDivider === 'vertical-left' ? 'terminal-grid__divider terminal-grid__divider--vertical terminal-grid__divider--active' : 'terminal-grid__divider terminal-grid__divider--vertical'}
-                style={{ gridColumn: '2', gridRow: '1 / 4' }}
-                role="separator"
-                aria-label="Resize left and center columns"
-                aria-orientation="vertical"
-                onPointerDown={(event) => handleWorkspaceDividerPointerDown('vertical-left', event)}
-              />
-              <div
-                className={activeDivider === 'vertical-right' ? 'terminal-grid__divider terminal-grid__divider--vertical terminal-grid__divider--active' : 'terminal-grid__divider terminal-grid__divider--vertical'}
-                style={{ gridColumn: '4', gridRow: '1 / 4' }}
-                role="separator"
-                aria-label="Resize center and right columns"
-                aria-orientation="vertical"
-                onPointerDown={(event) => handleWorkspaceDividerPointerDown('vertical-right', event)}
-              />
+              {WORKSPACE_VERTICAL_DIVIDERS.map((divider) => (
+                <div
+                  key={divider.id}
+                  className={activeDivider === divider.id ? 'terminal-grid__divider terminal-grid__divider--vertical terminal-grid__divider--active' : 'terminal-grid__divider terminal-grid__divider--vertical'}
+                  style={{ gridColumn: divider.gridColumn, gridRow: '1 / 4' }}
+                  role="separator"
+                  aria-label={divider.ariaLabel}
+                  aria-orientation="vertical"
+                  onPointerDown={(event) => handleWorkspaceDividerPointerDown(divider.id, event)}
+                />
+              ))}
               <div
                 className={activeDivider === 'horizontal' ? 'terminal-grid__divider terminal-grid__divider--horizontal terminal-grid__divider--active' : 'terminal-grid__divider terminal-grid__divider--horizontal'}
-                style={{ gridColumn: '1 / 6', gridRow: '2' }}
+                style={{ gridColumn: '1 / 8', gridRow: '2' }}
                 role="separator"
                 aria-label="Resize top and bottom rows"
                 aria-orientation="horizontal"
@@ -1791,6 +1799,30 @@ export function App() {
                               onChange={(event) => updateSlotDraft(setSlotDrafts, slot.slotId, { cwd: event.target.value })}
                             />
                           </label>
+                          <label className="settings-toggle slot-settings-card__toggle">
+                            <input
+                              type="checkbox"
+                              checked={slot.startupCommandEnabled}
+                              onChange={(event) =>
+                                updateSlotDraft(setSlotDrafts, slot.slotId, {
+                                  startupCommandEnabled: event.target.checked
+                                })
+                              }
+                            />
+                            <div className="settings-toggle__body">
+                              <div className="settings-toggle__title">Startup command</div>
+                              <div className="settings-toggle__description">Run once on app startup after this slot reaches its first PowerShell prompt.</div>
+                            </div>
+                          </label>
+                          <label className="settings-field">
+                            <span className="settings-field__label">Startup command text</span>
+                            <input
+                              className="settings-field__input"
+                              value={slot.startupCommandText}
+                              placeholder="copilotyolo"
+                              onChange={(event) => updateSlotDraft(setSlotDrafts, slot.slotId, { startupCommandText: event.target.value })}
+                            />
+                          </label>
                         </div>
                       </div>
                     ))}
@@ -2005,6 +2037,10 @@ function updateSlotDraft(
   setSlotDrafts((current) => current.map((slot) => (slot.slotId === slotId ? { ...slot, ...update } : slot)));
 }
 
+function hasLineBreak(value: string): boolean {
+  return /[\r\n]/.test(value);
+}
+
 function findSlotName(slots: TerminalSlotSettings[], slotId: TerminalSlotId | undefined): string {
   if (!slotId) {
     return 'slot';
@@ -2013,15 +2049,26 @@ function findSlotName(slots: TerminalSlotSettings[], slotId: TerminalSlotId | un
   return slots.find((slot) => slot.slotId === slotId)?.workspaceName ?? `slot${slotId}`;
 }
 
-function createWorkspaceGridStyle(layout: WorkspacePaneLayout) {
+function getWorkspaceGridPosition(index: number) {
+  const columnIndex = index % WORKSPACE_COLUMN_GRID_COLUMNS.length;
+  const rowIndex = Math.floor(index / WORKSPACE_COLUMN_GRID_COLUMNS.length);
   return {
-    gridTemplateColumns: [
-      `minmax(0, ${layout.columnFractions[0]}fr)`,
-      `${WORKSPACE_DIVIDER_SIZE_PX}px`,
-      `minmax(0, ${layout.columnFractions[1]}fr)`,
-      `${WORKSPACE_DIVIDER_SIZE_PX}px`,
-      `minmax(0, ${layout.columnFractions[2]}fr)`
-    ].join(' '),
+    gridColumn: WORKSPACE_COLUMN_GRID_COLUMNS[columnIndex],
+    gridRow: rowIndex === 0 ? '1' : '3'
+  };
+}
+
+function createWorkspaceGridStyle(layout: WorkspacePaneLayout) {
+  const gridTemplateColumns: string[] = [];
+  layout.columnFractions.forEach((fraction, index) => {
+    gridTemplateColumns.push(`minmax(0, ${fraction}fr)`);
+    if (index < layout.columnFractions.length - 1) {
+      gridTemplateColumns.push(`${WORKSPACE_DIVIDER_SIZE_PX}px`);
+    }
+  });
+
+  return {
+    gridTemplateColumns: gridTemplateColumns.join(' '),
     gridTemplateRows: [`minmax(0, ${layout.rowFractions[0]}fr)`, `${WORKSPACE_DIVIDER_SIZE_PX}px`, `minmax(0, ${layout.rowFractions[1]}fr)`].join(' ')
   };
 }
@@ -2040,7 +2087,7 @@ function calculateWorkspacePaneLayout(
   const rect = container.getBoundingClientRect();
   const innerWidth = rect.width - WORKSPACE_PADDING_PX * 2;
   const innerHeight = rect.height - WORKSPACE_PADDING_PX * 2;
-  const usableWidth = innerWidth - WORKSPACE_DIVIDER_SIZE_PX * 2;
+  const usableWidth = innerWidth - WORKSPACE_DIVIDER_SIZE_PX * (layout.columnFractions.length - 1);
   const usableHeight = innerHeight - WORKSPACE_DIVIDER_SIZE_PX;
   if (usableWidth <= 0 || usableHeight <= 0) {
     return layout;
@@ -2051,25 +2098,29 @@ function calculateWorkspacePaneLayout(
   const relativeX = clampNumber(clientX - rect.left - WORKSPACE_PADDING_PX, 0, innerWidth);
   const relativeY = clampNumber(clientY - rect.top - WORKSPACE_PADDING_PX, 0, innerHeight);
 
-  if (divider === 'vertical-left') {
-    const leftBoundary = clampNumber(relativeX - WORKSPACE_DIVIDER_SIZE_PX / 2, 0, usableWidth);
-    const maxLeftWidth = columnWidths[0] + columnWidths[1] - MIN_WORKSPACE_COLUMN_SIZE_PX;
-    const nextLeftWidth = clampNumber(leftBoundary, MIN_WORKSPACE_COLUMN_SIZE_PX, maxLeftWidth);
-    return {
-      columnFractions: normalizePixels([nextLeftWidth, columnWidths[0] + columnWidths[1] - nextLeftWidth, columnWidths[2]]) as [number, number, number],
-      rowFractions: layout.rowFractions
-    };
+  if (divider !== 'horizontal') {
+    const dividerIndex = WORKSPACE_VERTICAL_DIVIDERS.findIndex((entry) => entry.id === divider);
+    if (dividerIndex !== -1) {
+      const precedingWidth = columnWidths.slice(0, dividerIndex).reduce((sum, value) => sum + value, 0);
+      const pairWidth = columnWidths[dividerIndex] + columnWidths[dividerIndex + 1];
+      const boundary = clampNumber(relativeX - WORKSPACE_DIVIDER_SIZE_PX * (dividerIndex + 0.5), 0, usableWidth);
+      const nextBoundary = clampNumber(
+        boundary,
+        precedingWidth + MIN_WORKSPACE_COLUMN_SIZE_PX,
+        precedingWidth + pairWidth - MIN_WORKSPACE_COLUMN_SIZE_PX
+      );
+      const nextColumnWidths = [...columnWidths];
+      nextColumnWidths[dividerIndex] = nextBoundary - precedingWidth;
+      nextColumnWidths[dividerIndex + 1] = precedingWidth + pairWidth - nextBoundary;
+      return {
+        columnFractions: normalizePixels(nextColumnWidths) as WorkspacePaneLayout['columnFractions'],
+        rowFractions: layout.rowFractions
+      };
+    }
   }
 
-  if (divider === 'vertical-right') {
-    const rightBoundary = clampNumber(relativeX - WORKSPACE_DIVIDER_SIZE_PX * 1.5, 0, usableWidth);
-    const minBoundary = columnWidths[0] + MIN_WORKSPACE_COLUMN_SIZE_PX;
-    const maxBoundary = usableWidth - MIN_WORKSPACE_COLUMN_SIZE_PX;
-    const nextBoundary = clampNumber(rightBoundary, minBoundary, maxBoundary);
-    return {
-      columnFractions: normalizePixels([columnWidths[0], nextBoundary - columnWidths[0], usableWidth - nextBoundary]) as [number, number, number],
-      rowFractions: layout.rowFractions
-    };
+  if (divider !== 'horizontal') {
+    return layout;
   }
 
   const topBoundary = clampNumber(relativeY - WORKSPACE_DIVIDER_SIZE_PX / 2, 0, usableHeight);

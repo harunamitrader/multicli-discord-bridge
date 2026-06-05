@@ -64,6 +64,8 @@ interface StoredTerminalSlot {
   workspaceName?: string;
   channelId?: string;
   cwd?: string;
+  startupCommandEnabled?: boolean;
+  startupCommandText?: string;
 }
 
 const DEFAULT_BRIDGE_SETTINGS = {
@@ -122,7 +124,7 @@ export const MIN_DIFF_ANCHOR_CHARS = 50;
 export const MAX_DIFF_ANCHOR_CHARS = 5000;
 const SLOT_IDS = TERMINAL_SLOT_IDS;
 const DEFAULT_WORKSPACE_PANE_LAYOUT: WorkspacePaneLayout = {
-  columnFractions: [0.4, 0.4, 0.2],
+  columnFractions: [0.25, 0.25, 0.25, 0.25],
   rowFractions: [0.5, 0.5]
 };
 
@@ -160,14 +162,22 @@ export class PreferencesStore {
         slotId,
         workspaceName: normalizeWorkspaceName(stored?.workspaceName, slotId),
         channelId: stored?.channelId?.trim() ?? '',
-        cwd: stored?.cwd?.trim() || defaultCwd
+        cwd: stored?.cwd?.trim() || defaultCwd,
+        startupCommandEnabled: stored?.startupCommandEnabled ?? false,
+        startupCommandText: normalizeStartupCommandText(stored?.startupCommandText)
       };
     });
   }
 
   updateTerminalSlot(
     slotId: TerminalSlotId,
-    update: { workspaceName?: string; channelId?: string; cwd?: string }
+    update: {
+      workspaceName?: string;
+      channelId?: string;
+      cwd?: string;
+      startupCommandEnabled?: boolean;
+      startupCommandText?: string;
+    }
   ): TerminalSlotSettings {
     const slots = this.getTerminalSlots();
     const index = slots.findIndex((slot) => slot.slotId === slotId);
@@ -176,12 +186,19 @@ export class PreferencesStore {
     }
 
     const current = slots[index];
+    const startupCommandText =
+      update.startupCommandText === undefined ? current.startupCommandText : normalizeStartupCommandText(update.startupCommandText);
+    const startupCommandEnabled =
+      update.startupCommandEnabled === undefined ? current.startupCommandEnabled : Boolean(update.startupCommandEnabled);
+    validateStartupCommandSettings(startupCommandEnabled, startupCommandText);
     const next = {
       slotId,
       workspaceName:
         update.workspaceName === undefined ? current.workspaceName : normalizeWorkspaceName(update.workspaceName, slotId),
       channelId: update.channelId === undefined ? current.channelId : update.channelId.trim(),
-      cwd: update.cwd === undefined ? current.cwd : update.cwd.trim() || this.getDefaultWorkspaceCwd()
+      cwd: update.cwd === undefined ? current.cwd : update.cwd.trim() || this.getDefaultWorkspaceCwd(),
+      startupCommandEnabled,
+      startupCommandText
     };
 
     slots[index] = next;
@@ -530,6 +547,24 @@ function resolveInflightScreenshotDelayMs(
   return timing.inflightScreenshotDelayMs;
 }
 
+function normalizeStartupCommandText(value: string | undefined): string {
+  return value?.trim() ?? '';
+}
+
+function validateStartupCommandSettings(enabled: boolean, text: string): void {
+  if (hasLineBreak(text)) {
+    throw new Error('Startup command must be a single line.');
+  }
+
+  if (enabled && text.length === 0) {
+    throw new Error('Startup command text is required when startup command is enabled.');
+  }
+}
+
+function hasLineBreak(value: string): boolean {
+  return /[\r\n]/.test(value);
+}
+
 function clampInteger(value: number | undefined, min: number, max: number, fallback: number): number {
   if (!Number.isFinite(value)) {
     return fallback;
@@ -556,7 +591,7 @@ function normalizeWorkspacePaneLayout(
   const columnFractions = normalizeFractionVector(layout?.columnFractions, DEFAULT_WORKSPACE_PANE_LAYOUT.columnFractions);
   const rowFractions = normalizeFractionVector(layout?.rowFractions, DEFAULT_WORKSPACE_PANE_LAYOUT.rowFractions);
   return {
-    columnFractions: [columnFractions[0], columnFractions[1], columnFractions[2]],
+    columnFractions: [columnFractions[0], columnFractions[1], columnFractions[2], columnFractions[3]],
     rowFractions: [rowFractions[0], rowFractions[1]]
   };
 }

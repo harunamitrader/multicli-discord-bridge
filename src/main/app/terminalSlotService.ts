@@ -36,7 +36,9 @@ export class TerminalSlotService {
     const slot = this.preferencesStore.updateTerminalSlot(update.slotId, {
       workspaceName: update.workspaceName,
       channelId: update.channelId,
-      cwd: update.cwd
+      cwd: update.cwd,
+      startupCommandEnabled: update.startupCommandEnabled,
+      startupCommandText: update.startupCommandText
     });
 
     const sessionId = this.sessionIds.get(update.slotId);

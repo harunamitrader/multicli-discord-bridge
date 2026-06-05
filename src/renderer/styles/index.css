@@ -713,7 +713,7 @@ body.workspace-resize-active-row * {
 
 .slot-settings-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 4px;
@@ -749,6 +749,19 @@ body.workspace-resize-active-row * {
 .slot-settings-card .settings-field__input {
   padding: 6px 8px;
   font-size: 12px;
+}
+
+.slot-settings-card__toggle {
+  margin-top: 0;
+  padding: 8px;
+}
+
+.slot-settings-card__toggle .settings-toggle__title {
+  font-size: 12px;
+}
+
+.slot-settings-card__toggle .settings-toggle__description {
+  font-size: 10px;
 }
 
 .settings-screen__actions {

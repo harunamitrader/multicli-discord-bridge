@@ -1,6 +1,6 @@
 ---
 name: multicli-discord-bridge-slot-send
-description: Send plain text to slot1-slot6 of the running multicli-discord-bridge Electron app by calling the local slot-send CLI.
+description: Send plain text to slot1-slot8 of the running multicli-discord-bridge Electron app by calling the local slot-send CLI.
 ---
 
 # multicli-discord-bridge slot send
@@ -70,7 +70,7 @@ node .\scripts\bridge-send-slot.cjs --slot slot3 --from slot2 --text "This is Co
 ## Rules
 
 1. Always send to exactly one slot per command.
-2. Always pass `--from` with one of: `slot1-slot6`, `human`, `cron`, or `external:<label>`.
+2. Always pass `--from` with one of: `slot1-slot8`, `human`, `cron`, or `external:<label>`.
 3. For AI-authored inter-slot requests, begin the body with a short self-introduction such as `This is Copilot in slot2.` when you know your sender label.
 4. If you do not know your sender slot, ask the user first. Only if that would block the task may you switch to the text skill to identify yourself from visible text.
 5. If the CLI says the Electron app is not running, report that plainly.

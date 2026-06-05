@@ -4,7 +4,7 @@ export type TerminalResizeMode = 'fit' | 'fixed';
 export type TerminalWriteSource = 'local' | 'bridge' | 'system' | 'automation';
 export type TerminalControlKey = 'ctrl-c' | 'esc' | 'enter' | 'up' | 'down' | 'left' | 'right';
 export type TerminalSnapshotReason = 'before-send' | 'after-complete' | 'manual';
-export const TERMINAL_SLOT_IDS = [1, 2, 3, 4, 5, 6] as const;
+export const TERMINAL_SLOT_IDS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 export type TerminalSlotId = (typeof TERMINAL_SLOT_IDS)[number];
 export type BridgeReplyFormat = 'command' | 'plain-text';
 export type AppLogStream = 'stdout' | 'stderr';
@@ -80,6 +80,8 @@ export interface TerminalSlotSettings {
   workspaceName: string;
   channelId: string;
   cwd: string;
+  startupCommandEnabled: boolean;
+  startupCommandText: string;
 }
 
 export interface TerminalSlotSettingsUpdate {
@@ -87,6 +89,8 @@ export interface TerminalSlotSettingsUpdate {
   workspaceName?: string;
   channelId?: string;
   cwd?: string;
+  startupCommandEnabled?: boolean;
+  startupCommandText?: string;
 }
 
 export interface TerminalSlotSettingsUpdateResult {
@@ -95,7 +99,7 @@ export interface TerminalSlotSettingsUpdateResult {
 }
 
 export interface WorkspacePaneLayout {
-  columnFractions: [number, number, number];
+  columnFractions: [number, number, number, number];
   rowFractions: [number, number];
 }
 

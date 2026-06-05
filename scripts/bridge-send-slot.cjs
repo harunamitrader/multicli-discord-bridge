@@ -139,11 +139,11 @@ function normalizeFromLabel(value) {
   }
 
   const normalized = value.trim().toLowerCase();
-  if (/^slot[1-6]$/.test(normalized) || normalized === 'human' || normalized === 'cron' || /^external:[a-z0-9._-]+$/.test(normalized)) {
+  if (/^slot[1-8]$/.test(normalized) || normalized === 'human' || normalized === 'cron' || /^external:[a-z0-9._-]+$/.test(normalized)) {
     return normalized;
   }
 
-  throw new Error('From label must be slot1-slot6, human, cron, or external:<label>.');
+  throw new Error('From label must be slot1-slot8, human, cron, or external:<label>.');
 }
 
 function normalizeSlot(value) {
@@ -152,8 +152,8 @@ function normalizeSlot(value) {
   }
 
   const normalized = value.trim().toLowerCase().replace(/^slot-?/, '');
-  if (!['1', '2', '3', '4', '5', '6'].includes(normalized)) {
-    throw new Error('Slot must be 1-6 or slot1-slot6.');
+  if (!['1', '2', '3', '4', '5', '6', '7', '8'].includes(normalized)) {
+    throw new Error('Slot must be 1-8 or slot1-slot8.');
   }
 
   return Number(normalized);
@@ -285,8 +285,8 @@ function printHelp() {
       '  Get-Content .\\prompt.txt | node scripts\\bridge-send-slot.cjs --slot slot3 --from slot2',
       '',
       'Options:',
-      '  --slot <slot>    Required. 1-6, slot1-slot6, or slot-1-slot-6',
-      '  --from <label>   Required. slot1-slot6, human, cron, or external:<label>',
+      '  --slot <slot>    Required. 1-8, slot1-slot8, or slot-1-slot-8',
+      '  --from <label>   Required. slot1-slot8, human, cron, or external:<label>',
       '  --text <text>    Optional when text is piped through stdin',
       '  --no-enter       Send text without the trailing Enter',
       '  --notify-on-complete  Optional. Off by default, even for skills',

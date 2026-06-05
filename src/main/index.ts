@@ -11,6 +11,7 @@ import { DiscordBridgeService } from './bridge/discordBridgeService';
 import { TerminalAutomationService } from './bridge/terminalAutomationService';
 import { PreferencesStore } from './app/preferencesStore';
 import { dismissStartupSplash } from './app/startupSplashSignal';
+import { SlotStartupCommandService } from './app/slotStartupCommandService';
 import { TerminalSlotService } from './app/terminalSlotService';
 import { SlotStateStore } from './app/slotStateStore';
 import { LocalAutomationServer } from './automation/localAutomationServer';
@@ -46,6 +47,13 @@ async function bootstrap(): Promise<void> {
   console.info(`Discord bridge restricted to guild ${bridgeRuntimeConfig.guildId}.`);
   const channelSessionRegistry = new ChannelSessionRegistry(terminalSessionManager);
   const terminalAutomationService = new TerminalAutomationService(terminalSessionManager, bridgeRuntimeConfig, preferencesStore);
+  const slotStartupCommandService = new SlotStartupCommandService(
+    terminalSlotService,
+    terminalSessionManager,
+    terminalAutomationService,
+    () => mainWindow,
+    appLogStore
+  );
   const window = createMainWindow(preferencesStore);
   mainWindow = window;
   discordBridgeService = new DiscordBridgeService(
@@ -77,6 +85,7 @@ async function bootstrap(): Promise<void> {
 
   terminalSessionManager.on('session-prompt-ready', ({ sessionId, occurredAt }) => {
     slotStateStore.recordPromptReady(sessionId, occurredAt);
+    slotStartupCommandService.handlePromptReady(sessionId);
   });
 
   terminalSessionManager.on('session-write', ({ sessionId, data, source, occurredAt }) => {
@@ -85,6 +94,7 @@ async function bootstrap(): Promise<void> {
 
   terminalSessionManager.on('session-exit', ({ sessionId }) => {
     slotStateStore.recordSessionExit(sessionId);
+    slotStartupCommandService.discardSession(sessionId);
     terminalSlotService.handleSessionExit(sessionId);
     channelSessionRegistry.markSessionExited(sessionId);
   });
@@ -107,7 +117,7 @@ async function bootstrap(): Promise<void> {
     }
   });
 
-  terminalSlotService.ensureSessions();
+  slotStartupCommandService.registerStartupSessions(terminalSlotService.ensureSessions());
   localAutomation.start();
   const cronScheduler = new CronJobScheduler(discordBridgeService, appLogStore);
   cronJobScheduler = cronScheduler;
