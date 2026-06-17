@@ -41,6 +41,8 @@ interface StoredPreferences {
   };
   terminalSlots?: StoredTerminalSlot[];
   bridgeSettings?: {
+    replyTextOnCompletion?: boolean;
+    completionReplyMaxChars?: number;
     autoScreenshotOnReply?: boolean;
     inflightScreenshotOnRunningRequest?: boolean;
     replyFormat?: BridgeReplyFormat;
@@ -69,6 +71,8 @@ interface StoredTerminalSlot {
 }
 
 const DEFAULT_BRIDGE_SETTINGS = {
+  replyTextOnCompletion: true,
+  completionReplyMaxChars: 5000,
   autoScreenshotOnReply: true,
   inflightScreenshotOnRunningRequest: true,
   replyFormat: 'command' as BridgeReplyFormat,
@@ -122,6 +126,8 @@ const MIN_HARD_TIMEOUT_MS = 5000;
 const MAX_HARD_TIMEOUT_MS = 7200000;
 export const MIN_DIFF_ANCHOR_CHARS = 50;
 export const MAX_DIFF_ANCHOR_CHARS = 5000;
+export const MIN_COMPLETION_REPLY_MAX_CHARS = 100;
+export const MAX_COMPLETION_REPLY_MAX_CHARS = 20000;
 const SLOT_IDS = TERMINAL_SLOT_IDS;
 const DEFAULT_WORKSPACE_PANE_LAYOUT: WorkspacePaneLayout = {
   columnFractions: [0.25, 0.25, 0.25, 0.25],
@@ -233,6 +239,14 @@ export class PreferencesStore {
 
   getBridgeSettings(): BridgeSettings {
     return {
+      replyTextOnCompletion:
+        this.state.bridgeSettings?.replyTextOnCompletion ?? DEFAULT_BRIDGE_SETTINGS.replyTextOnCompletion,
+      completionReplyMaxChars: clampInteger(
+        this.state.bridgeSettings?.completionReplyMaxChars,
+        MIN_COMPLETION_REPLY_MAX_CHARS,
+        MAX_COMPLETION_REPLY_MAX_CHARS,
+        DEFAULT_BRIDGE_SETTINGS.completionReplyMaxChars
+      ),
       autoScreenshotOnReply: this.state.bridgeSettings?.autoScreenshotOnReply ?? DEFAULT_BRIDGE_SETTINGS.autoScreenshotOnReply,
       inflightScreenshotOnRunningRequest:
         this.state.bridgeSettings?.inflightScreenshotOnRunningRequest ?? DEFAULT_BRIDGE_SETTINGS.inflightScreenshotOnRunningRequest,
@@ -424,6 +438,12 @@ export class PreferencesStore {
 
     this.state.bridgeSettings = {
       ...this.state.bridgeSettings,
+      ...(update.replyTextOnCompletion === undefined
+        ? {}
+        : { replyTextOnCompletion: Boolean(update.replyTextOnCompletion) }),
+      ...(update.completionReplyMaxChars === undefined
+        ? {}
+        : { completionReplyMaxChars: update.completionReplyMaxChars }),
       ...(update.autoScreenshotOnReply === undefined
         ? {}
         : { autoScreenshotOnReply: Boolean(update.autoScreenshotOnReply) }),

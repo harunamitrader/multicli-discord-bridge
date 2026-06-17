@@ -18,6 +18,9 @@
 - `!hardtimeout`, `!hardtimeoutunlimited`, `!hardtimeoutoff` コマンド
 - `!cols`, `!rows` で bridge dimensions を確認・変更するコマンド
 - Settings / `preferences.json` で bridge timing に加えて completion / screenshot / restart / attachment download timeout も調整できる設定項目
+- text / control 完了時の Discord 差分テキスト返信を Settings / `preferences.json` から ON/OFF できる設定項目
+- text / control 完了時の Discord 差分テキスト最大文字数を Settings / `preferences.json` から変更できる設定項目
+- cron ジョブ送信先 slot の対応を 1〜8 に拡張し、同梱 `bridge-cron-tui` と `docs\CRON-SPEC.md` も同じ上限に統一
 - `!up`, `!down` で矢印キーを送るコマンド
 - `!up N`, `!down N` と `!upN`, `!downN` の連続矢印キーコマンド
 - `!left`, `!right`, `!left N`, `!right N`, `!leftN`, `!rightN` の左右矢印キーコマンド

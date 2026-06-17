@@ -346,7 +346,7 @@ screen diff の中間アンカー長は、既定値を **500 文字から 300 �
 設定は Electron アプリ右上の **Settings** から開きます。  
 設定は **Global** と **Per slot** に分かれています。
 
-- **Global:** 自動スクリーンショット送信 ON/OFF、Discord reply format、soft timeout / hard timeout、bridge 用の固定 cols / rows（rows の最小値は `15`）
+- **Global:** 完了時テキスト返信 ON/OFF、完了時テキスト最大文字数、自動スクリーンショット送信 ON/OFF、Discord reply format、soft timeout / hard timeout、bridge 用の固定 cols / rows（rows の最小値は `15`）
 - **Global:** Delayed inflight terminal screenshot（既定値 `ON`）と inflight screenshot delay（既定値 `10s`、`preferences.json` の `bridgeSettings.inflightScreenshotOnRunningRequest` / `bridgeSettings.timing.inflightScreenshotDelaySeconds`）
 - **Global:** Artifact publish folder（初期値は terminal 1 の cwd 直下の `discord-publish`、送信先チャンネルは自動作成される `terminal-artifacts`）
 - **Global:** screen diff anchor chars（既定値 `300`、`preferences.json` の `bridgeSettings.diffAnchorChars` に保存）
@@ -356,6 +356,8 @@ screen diff の中間アンカー長は、既定値を **500 文字から 300 �
 初期値は次のとおりです。
 
 - Auto screenshot after reply: `ON`
+- Completion text reply: `ON`
+- Completion text max chars: `5000`
 - Delayed inflight terminal screenshot: `ON`
 - Discord reply format: `code block`
 - Soft timeout: `300s`

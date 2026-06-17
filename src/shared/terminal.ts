@@ -52,6 +52,8 @@ export interface BridgeArtifactPublishSettings {
 }
 
 export interface BridgeSettings {
+  replyTextOnCompletion: boolean;
+  completionReplyMaxChars: number;
   autoScreenshotOnReply: boolean;
   inflightScreenshotOnRunningRequest: boolean;
   replyFormat: BridgeReplyFormat;
@@ -64,6 +66,8 @@ export interface BridgeSettings {
 }
 
 export interface BridgeSettingsUpdate {
+  replyTextOnCompletion?: boolean;
+  completionReplyMaxChars?: number;
   autoScreenshotOnReply?: boolean;
   inflightScreenshotOnRunningRequest?: boolean;
   replyFormat?: BridgeReplyFormat;

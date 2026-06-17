@@ -132,7 +132,7 @@ This project is designed not as a **public remote-management bot**, but as a **b
 - The shared artifact channel `terminal-artifacts` is also auto-created or reused at startup
 - Even while a bridge-managed session is running, additional normal input can still be sent from the local UI or Discord
 - Automatic post-reply screenshots can be turned on or off from the Electron settings UI or Discord commands
-- Discord reply format, soft timeout / hard timeout, and fixed bridge dimensions can be changed from the Electron settings UI
+- Discord reply format, completion text max chars, soft timeout / hard timeout, and fixed bridge dimensions can be changed from the Electron settings UI
 - The screen diff middle anchor length can also be changed from the Electron settings UI or `preferences.json`, and defaults to `300`
 - The artifact publish folder can be changed from the Electron settings UI and is stored in `preferences.json`
 - In addition to redraw waits, snapshot waits, text-to-Enter waits, and repeated-key intervals, completion detection, manual redraw, live view publish, screenshot capture, app restart, and attachment download timeouts can also be changed from the Electron settings UI and are stored in `preferences.json`

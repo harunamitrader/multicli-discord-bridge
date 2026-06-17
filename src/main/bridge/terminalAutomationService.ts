@@ -169,7 +169,8 @@ export class TerminalAutomationService {
     const baselineState = await this.terminalSessionManager.getSessionState(request.sessionId);
     const beforeRawTranscript = await this.terminalSessionManager.getRawTranscriptSince(request.sessionId, 0);
     const baselineRawOffset = beforeRawTranscript.length;
-    const timing = this.preferencesStore.getBridgeSettings().timing;
+    const bridgeSettings = this.preferencesStore.getBridgeSettings();
+    const { timing } = bridgeSettings;
 
     if (request.kind === 'text') {
       if (beforeSnapshot) {
@@ -215,19 +216,20 @@ export class TerminalAutomationService {
       rawOutput,
       tailChars: this.config.diff.tailChars,
       fallbackLines: this.config.diff.fallbackLines,
-      middleAnchorChars: this.preferencesStore.getBridgeSettings().diffAnchorChars
+      middleAnchorChars: bridgeSettings.diffAnchorChars
     });
     const replyResult = sanitizeReplyText({
       beforeText: beforeSnapshot?.screenText,
       afterText: diffAfterSnapshot.screenText,
       fallbackText: diff.diffText,
       submittedText: request.kind === 'text' ? request.content : undefined,
-      diffAnchorChars: this.preferencesStore.getBridgeSettings().diffAnchorChars
+      diffAnchorChars: bridgeSettings.diffAnchorChars,
+      maxChars: bridgeSettings.completionReplyMaxChars
     });
     const replyText = replyResult.usedFallback
       ? `[reply fallback used]\n${replyResult.text}`
       : replyResult.text;
-    const replyChunks = this.replyFormatter.format(replyText, this.preferencesStore.getBridgeSettings().replyFormat);
+    const replyChunks = this.replyFormatter.format(replyText, bridgeSettings.replyFormat);
 
     return {
       beforeSnapshot,
@@ -353,18 +355,19 @@ function sanitizeReplyText(options: {
   fallbackText: string;
   submittedText?: string;
   diffAnchorChars: number;
+  maxChars: number;
 }): { text: string; usedFallback: boolean } {
   const extracted = extractSanitizedReplyText(options);
   if (extracted) {
     return {
-      text: compressDecorativeRuns(extracted),
+      text: limitReplyText(compressDecorativeRuns(extracted), options.maxChars),
       usedFallback: false
     };
   }
 
   const fallbackText = normalizeTerminalText(options.fallbackText).trim() || '(no diff)';
   return {
-    text: compressDecorativeRuns(limitFallbackReplyText(fallbackText)),
+    text: limitReplyText(compressDecorativeRuns(fallbackText), options.maxChars),
     usedFallback: true
   };
 }
@@ -478,12 +481,12 @@ function extractTailDiffFromText(beforeText: string | undefined, afterText: stri
   return extractComparableLineDiff(beforeText, afterText, REPLY_COMPARISON_TAIL_CHARS, diffAnchorChars);
 }
 
-function limitFallbackReplyText(text: string): string {
-  if (text.length <= REPLY_FALLBACK_MAX_CHARS) {
+function limitReplyText(text: string, maxChars: number): string {
+  if (text.length <= maxChars) {
     return text;
   }
 
-  return text.slice(Math.max(0, text.length - REPLY_FALLBACK_MAX_CHARS)).trimStart();
+  return text.slice(Math.max(0, text.length - maxChars)).trimStart();
 }
 
 function compressDecorativeRuns(text: string): string {
@@ -525,4 +528,3 @@ function wait(durationMs: number): Promise<void> {
   });
 }
 const REPLY_COMPARISON_TAIL_CHARS = 20000;
-const REPLY_FALLBACK_MAX_CHARS = 5000;

@@ -186,6 +186,7 @@ interface BridgeExecutionResult {
   success: boolean;
   replyChunks: string[];
   diffLength: number;
+  replyTextCategory: 'completion' | 'status';
   attachments?: AttachmentBuilder[];
 }
 
@@ -943,7 +944,10 @@ export class DiscordBridgeService {
       } else if (!result.success) {
         throw new Error(`completion=${result.completionReason}`);
       } else {
-        await this.sendReplies(context.message, result.replyChunks, result.attachments);
+        const replyChunks = this.shouldSendReplyText(result) ? result.replyChunks : [];
+        if (replyChunks.length > 0 || (result.attachments?.length ?? 0) > 0) {
+          await this.sendReplies(context.message, replyChunks, result.attachments);
+        }
         await this.maybeSendAutoScreenshot(context.message, request, binding.sessionId);
         await this.tryAddReaction(context.message, REACTION_SUCCESS);
       }
@@ -983,7 +987,8 @@ export class DiscordBridgeService {
           completionReason: 'attachments_forwarded',
           success: true,
           replyChunks: this.formatReplyText(buildAttachmentSavedReply(request.attachmentBatch)),
-          diffLength: 0
+          diffLength: 0,
+          replyTextCategory: 'status'
         };
       }
 
@@ -1016,6 +1021,7 @@ export class DiscordBridgeService {
         success: true,
         replyChunks: ['[terminal screenshot]'],
         diffLength: 0,
+        replyTextCategory: 'status',
         attachments: [await this.createTerminalScreenshotAttachment(sessionId)]
       };
     }
@@ -1026,6 +1032,7 @@ export class DiscordBridgeService {
         success: true,
         replyChunks: ['[app window screenshot]'],
         diffLength: 0,
+        replyTextCategory: 'status',
         attachments: [await this.createWindowScreenshotAttachment()]
       };
     }
@@ -1038,8 +1045,13 @@ export class DiscordBridgeService {
       completionReason: result.completion.reason,
       success: result.completion.success,
       replyChunks: result.replyChunks,
-      diffLength: result.diff.diffText.length
+      diffLength: result.diff.diffText.length,
+      replyTextCategory: 'completion'
     };
+  }
+
+  private shouldSendReplyText(result: BridgeExecutionResult): boolean {
+    return result.replyTextCategory !== 'completion' || this.preferencesStore.getBridgeSettings().replyTextOnCompletion;
   }
 
   private async maybeSendAutoScreenshot(message: Message, request: BridgeRequestRecord, sessionId: string): Promise<void> {

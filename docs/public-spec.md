@@ -132,7 +132,7 @@ multicli-discord-bridge は、**Windows PC 上の PowerShell を Discord から�
 - artifact 送信用の共通 channel `terminal-artifacts` も起動時に自動作成または再利用します
 - 処理中の bridge-managed session に対しても、ローカル UI 側や Discord 側から通常入力を追加できます
 - 自動スクリーンショット送信は Electron アプリ側設定または Discord コマンドで ON / OFF できます
-- Discord 返信形式、soft timeout / hard timeout / fixed bridge dimensions は Electron アプリ側設定で変更できます
+- Discord 返信形式、完了時テキスト最大文字数、soft timeout / hard timeout / fixed bridge dimensions は Electron アプリ側設定で変更できます
 - screen diff の中間アンカー長も Electron アプリ側設定または `preferences.json` で変更でき、既定値は `300` です
 - artifact publish folder も Electron アプリ側設定で変更でき、設定は `preferences.json` に保存されます
 - bridge timing（再描画後待機、snapshot 前待機、text-to-Enter、連続キー間隔）に加えて、completion 判定、manual redraw、live view publish、screenshot capture、app restart、attachment download timeout も Electron アプリ側設定から変更でき、`preferences.json` に保存されます

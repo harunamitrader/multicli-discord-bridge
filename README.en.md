@@ -342,7 +342,7 @@ The middle anchor length for screen diffs now defaults to **300 characters inste
 Open Settings from the top right of the Electron app.  
 Settings are split into **Global** and **Per slot** sections.
 
-- **Global:** auto screenshot on/off, Discord reply format, soft timeout / hard timeout, fixed bridge cols / rows (minimum rows is `15`)
+- **Global:** completion text reply on/off, completion text max chars, auto screenshot on/off, Discord reply format, soft timeout / hard timeout, fixed bridge cols / rows (minimum rows is `15`)
 - **Global:** Delayed inflight terminal screenshot (default `ON`) and inflight screenshot delay (default `10s`, saved as `bridgeSettings.inflightScreenshotOnRunningRequest` / `bridgeSettings.timing.inflightScreenshotDelaySeconds`)
 - **Global:** Artifact publish folder (default is `discord-publish` under terminal 1's cwd, destination channel is the auto-created `terminal-artifacts`)
 - **Global:** screen diff anchor chars (default `300`, saved as `bridgeSettings.diffAnchorChars` in `preferences.json`)
@@ -352,6 +352,8 @@ Settings are split into **Global** and **Per slot** sections.
 Default values are:
 
 - Auto screenshot after reply: `ON`
+- Completion text reply: `ON`
+- Completion text max chars: `5000`
 - Delayed inflight terminal screenshot: `ON`
 - Discord reply format: `code block`
 - Soft timeout: `300s`

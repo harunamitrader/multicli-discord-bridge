@@ -58,7 +58,7 @@ cron-jobs\{name}.json
 |-----------|-----|------|------|
 | `name` | string | ✓ | ジョブ識別名。ファイル名（拡張子なし）と一致させる |
 | `cron` | string | ✓ | 5 フィールド cron 式（分 時 日 月 曜） |
-| `slot` | 1\|2\|3\|4\|5\|6 | ✓ | 送信先ターミナルスロット番号 |
+| `slot` | 1\|2\|3\|4\|5\|6\|7\|8 | ✓ | 送信先ターミナルスロット番号 |
 | `text` | string | ✓ | 送信本文。通常の Discord メッセージ本文と同じように解釈され、`!ss` などの bridge コマンドもそのまま使える |
 | `timezone` | string | — | タイムゾーン（デフォルト: `Asia/Tokyo`） |
 | `active` | boolean | — | `false` でジョブ停止（デフォルト: `true`） |
@@ -207,7 +207,7 @@ multicli-discord-bridge/
 ┌─ ジョブ追加 ────────────────────────────────────────┐
 │ name:     [morning-task              ]               │
 │ cron:     [0 9 * * *                 ] ✓ 毎日09:00  │
-│ slot:     [2] (1/2/3/4/5/6)                          │
+│ slot:     [2] (1/2/3/4/5/6/7/8)                      │
 │ text:     [python analyze.py         ]               │
 │ timezone: [Asia/Tokyo                ]               │
 │ active:   [✓]                                        │
@@ -218,7 +218,7 @@ multicli-discord-bridge/
 
 - `cron` フィールドは入力中にリアルタイムバリデーション
 - 有効な cron 式の場合は次回実行時刻を横に表示
-- `slot` は 1〜6 のみ受け付ける
+- `slot` は 1〜8 のみ受け付ける
 
 ### 依存パッケージ（TUI）
 

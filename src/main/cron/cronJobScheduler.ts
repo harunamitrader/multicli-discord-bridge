@@ -172,7 +172,7 @@ function parseCronJobConfig(
   }
 
   if (!isTerminalSlotId(slot)) {
-    return { ok: false, error: 'slot must be 1, 2, 3, 4, 5, or 6' };
+    return { ok: false, error: 'slot must be 1, 2, 3, 4, 5, 6, 7, or 8' };
   }
 
   if (typeof text !== 'string' || text.length === 0) {
@@ -205,7 +205,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isTerminalSlotId(value: unknown): value is TerminalSlotId {
-  return value === 1 || value === 2 || value === 3 || value === 4 || value === 5 || value === 6;
+  return value === 1 || value === 2 || value === 3 || value === 4 || value === 5 || value === 6 || value === 7 || value === 8;
 }
 
 function isFiveFieldCron(value: string): boolean {

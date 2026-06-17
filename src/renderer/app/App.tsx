@@ -12,6 +12,8 @@ import type {
 import { TerminalViewport } from '../components/TerminalViewport';
 
 interface SettingsDraft {
+  replyTextOnCompletion: boolean;
+  completionReplyMaxChars: string;
   autoScreenshotOnReply: boolean;
   inflightScreenshotOnRunningRequest: boolean;
   replyFormat: BridgeReplyFormat;
@@ -47,6 +49,7 @@ interface SettingsDraft {
 }
 
 type SettingsNumericField =
+  | 'completionReplyMaxChars'
   | 'diffAnchorChars'
   | 'bridgeCols'
   | 'bridgeRows'
@@ -93,6 +96,8 @@ const MAX_HARD_TIMEOUT_SECONDS = MAX_HARD_TIMEOUT_MS / 1000;
 const DEFAULT_HARD_TIMEOUT_SECONDS = DEFAULT_HARD_TIMEOUT_MS / 1000;
 const MIN_INFLIGHT_SCREENSHOT_DELAY_SECONDS = MIN_TIMING_DELAY_MS / 1000;
 const MAX_INFLIGHT_SCREENSHOT_DELAY_SECONDS = MAX_TIMING_DELAY_MS / 1000;
+const MIN_COMPLETION_REPLY_MAX_CHARS = 100;
+const MAX_COMPLETION_REPLY_MAX_CHARS = 20000;
 const MIN_DIFF_ANCHOR_CHARS = 50;
 const MAX_DIFF_ANCHOR_CHARS = 5000;
 const MAX_RENDERED_APP_LOGS = 2000;
@@ -122,6 +127,8 @@ export function App() {
   const [logsOpen, setLogsOpen] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [bridgeSettings, setBridgeSettings] = useState<BridgeSettings>({
+    replyTextOnCompletion: true,
+    completionReplyMaxChars: 5000,
     autoScreenshotOnReply: true,
     inflightScreenshotOnRunningRequest: true,
     replyFormat: 'command',
@@ -162,6 +169,8 @@ export function App() {
     }
   });
   const [settingsDraft, setSettingsDraft] = useState<SettingsDraft>({
+    replyTextOnCompletion: true,
+    completionReplyMaxChars: '5000',
     autoScreenshotOnReply: true,
     inflightScreenshotOnRunningRequest: true,
     replyFormat: 'command',
@@ -414,6 +423,11 @@ export function App() {
       ? null
       : parseBoundedInteger(settingsDraft.hardTimeoutSeconds, MIN_HARD_TIMEOUT_SECONDS, MAX_HARD_TIMEOUT_SECONDS);
     const hardTimeoutMs = hardTimeoutSeconds === null ? null : hardTimeoutSeconds * 1000;
+    const completionReplyMaxChars = parseBoundedInteger(
+      settingsDraft.completionReplyMaxChars,
+      MIN_COMPLETION_REPLY_MAX_CHARS,
+      MAX_COMPLETION_REPLY_MAX_CHARS
+    );
     const diffAnchorChars = parseBoundedInteger(settingsDraft.diffAnchorChars, MIN_DIFF_ANCHOR_CHARS, MAX_DIFF_ANCHOR_CHARS);
     const cols = parseBoundedInteger(settingsDraft.bridgeCols, MIN_BRIDGE_COLS, MAX_BRIDGE_COLS);
     const rows = parseBoundedInteger(settingsDraft.bridgeRows, MIN_BRIDGE_ROWS, MAX_BRIDGE_ROWS);
@@ -529,6 +543,7 @@ export function App() {
     if (
       !Number.isFinite(softTimeoutSeconds) ||
       (!settingsDraft.hardTimeoutUnlimited && !Number.isFinite(hardTimeoutSeconds)) ||
+      !Number.isFinite(completionReplyMaxChars) ||
       !Number.isFinite(diffAnchorChars) ||
       !Number.isFinite(cols) ||
       !Number.isFinite(rows) ||
@@ -581,6 +596,8 @@ export function App() {
       });
 
       const updatedBridgeSettings = await window.terminalApp.updateBridgeSettings({
+        replyTextOnCompletion: settingsDraft.replyTextOnCompletion,
+        completionReplyMaxChars,
         autoScreenshotOnReply: settingsDraft.autoScreenshotOnReply,
         inflightScreenshotOnRunningRequest: settingsDraft.inflightScreenshotOnRunningRequest,
         replyFormat: settingsDraft.replyFormat,
@@ -914,6 +931,22 @@ export function App() {
                     <label className="settings-toggle">
                       <input
                         type="checkbox"
+                        checked={settingsDraft.replyTextOnCompletion}
+                        onChange={(event) =>
+                          setSettingsDraft((current) => ({
+                            ...current,
+                            replyTextOnCompletion: event.target.checked
+                          }))
+                        }
+                      />
+                      <div className="settings-toggle__body">
+                        <div className="settings-toggle__title">Completion text reply</div>
+                        <div className="settings-toggle__description">Send diff-based text back to Discord after a text or control request completes.</div>
+                      </div>
+                    </label>
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
                         checked={settingsDraft.autoScreenshotOnReply}
                         onChange={(event) =>
                           setSettingsDraft((current) => ({
@@ -946,6 +979,35 @@ export function App() {
                       </div>
                     </label>
                     <div className="settings-grid settings-grid--compact">
+                      <label className="settings-field">
+                        <span className="settings-field__label">{`Completion text max chars (${MIN_COMPLETION_REPLY_MAX_CHARS}-${MAX_COMPLETION_REPLY_MAX_CHARS})`}</span>
+                        <input
+                          className="settings-field__input"
+                          type="number"
+                          min={MIN_COMPLETION_REPLY_MAX_CHARS}
+                          max={MAX_COMPLETION_REPLY_MAX_CHARS}
+                          step={1}
+                          value={settingsDraft.completionReplyMaxChars}
+                          onChange={(event) =>
+                            updateBoundedIntegerDraft(
+                              setSettingsDraft,
+                              'completionReplyMaxChars',
+                              event.target.value,
+                              MIN_COMPLETION_REPLY_MAX_CHARS,
+                              MAX_COMPLETION_REPLY_MAX_CHARS
+                            )
+                          }
+                          onBlur={() =>
+                            clampBoundedIntegerDraft(
+                              setSettingsDraft,
+                              'completionReplyMaxChars',
+                              settingsDraft.completionReplyMaxChars,
+                              MIN_COMPLETION_REPLY_MAX_CHARS,
+                              MAX_COMPLETION_REPLY_MAX_CHARS
+                            )
+                          }
+                        />
+                      </label>
                       <label className="settings-field">
                         <span className="settings-field__label">Discord reply format</span>
                         <select
@@ -1850,6 +1912,8 @@ export function App() {
 
 function createSettingsDraft(bridgeSettings: BridgeSettings): SettingsDraft {
   return {
+    replyTextOnCompletion: bridgeSettings.replyTextOnCompletion,
+    completionReplyMaxChars: String(bridgeSettings.completionReplyMaxChars),
     autoScreenshotOnReply: bridgeSettings.autoScreenshotOnReply,
     inflightScreenshotOnRunningRequest: bridgeSettings.inflightScreenshotOnRunningRequest,
     replyFormat: bridgeSettings.replyFormat,

@@ -67,16 +67,16 @@ export default function JobForm({ mode, initialJob, onSave, onCancel }) {
 
     if (activeField === 'slot') {
       if (key.leftArrow) {
-        setSlot((current) => (current === 1 ? 6 : current - 1));
+        setSlot((current) => (current === 1 ? 8 : current - 1));
         return;
       }
 
       if (key.rightArrow) {
-        setSlot((current) => (current === 6 ? 1 : current + 1));
+        setSlot((current) => (current === 8 ? 1 : current + 1));
         return;
       }
 
-      if (/^[1-6]$/.test(input)) {
+      if (/^[1-8]$/.test(input)) {
         setSlot(Number(input));
         return;
       }
@@ -131,7 +131,7 @@ export default function JobForm({ mode, initialJob, onSave, onCancel }) {
       control: h(
         Text,
         { color: activeField === 'slot' ? 'cyanBright' : undefined },
-        `[${slot}] (←/→ または 1-6)`
+        `[${slot}] (←/→ または 1-8)`
       )
     }),
     h(FormRow, {
@@ -182,7 +182,7 @@ function FormRow({ label, focused, control, suffix, suffixColor }) {
 }
 
 function normalizeSlot(value) {
-  return value === 1 || value === 2 || value === 3 || value === 4 || value === 5 || value === 6 ? value : 1;
+  return value === 1 || value === 2 || value === 3 || value === 4 || value === 5 || value === 6 || value === 7 || value === 8 ? value : 1;
 }
 
 function validateForm({ name, cron, slot, text, timezone }) {
@@ -194,8 +194,8 @@ function validateForm({ name, cron, slot, text, timezone }) {
     return 'cron 式が無効です';
   }
 
-  if (![1, 2, 3, 4, 5, 6].includes(slot)) {
-    return 'slot は 1-6 です';
+  if (![1, 2, 3, 4, 5, 6, 7, 8].includes(slot)) {
+    return 'slot は 1-8 です';
   }
 
   if (text.length === 0) {
